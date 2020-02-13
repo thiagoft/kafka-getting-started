@@ -2,18 +2,17 @@ package com.thiagoft.ecommerce;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import java.util.Collections;
-
 public class EmailService {
     public static void main(String[] args) {
         var emailService = new EmailService();
-        var service = new KafkaService(EmailService.class.getSimpleName(),
-                Collections.singletonList("ECOMMERCE_SEND_EMAIL"),
-                emailService::parse);
+        var service = new KafkaService<>(EmailService.class.getSimpleName(),
+                "ECOMMERCE_SEND_EMAIL",
+                emailService::parse,
+                Email.class);
         service.run();
     }
 
-    private void parse(ConsumerRecord<String, String> record) {
+    private void parse(ConsumerRecord<String, Email> record) {
         System.out.println("_______________________________________");
         System.out.println("Sending email");
         System.out.println(record.key());

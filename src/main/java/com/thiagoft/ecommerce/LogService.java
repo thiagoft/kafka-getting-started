@@ -2,12 +2,15 @@ package com.thiagoft.ecommerce;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
+import java.util.regex.Pattern;
+
 public class LogService {
     public static void main(String[] args) {
         var logService = new LogService();
         var service = new KafkaService(LogService.class.getSimpleName(),
-                "ECOMMERCE.*",
-                logService::parse);
+                Pattern.compile("ECOMMERCE.*"),
+                logService::parse,
+                String.class);
         service.run();
     }
 

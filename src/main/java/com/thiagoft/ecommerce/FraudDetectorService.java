@@ -2,18 +2,17 @@ package com.thiagoft.ecommerce;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import java.util.Collections;
-
 public class FraudDetectorService {
     public static void main(String[] args) {
         var fraudDetectorService = new FraudDetectorService();
-        var service = new KafkaService(FraudDetectorService.class.getSimpleName(),
-                Collections.singletonList("ECOMMERCE_NEW_ORDER"),
-                fraudDetectorService::parse);
+        var service = new KafkaService<>(FraudDetectorService.class.getSimpleName(),
+                "ECOMMERCE_NEW_ORDER",
+                fraudDetectorService::parse,
+                Order.class);
         service.run();
     }
 
-    private void parse(ConsumerRecord<String, String> record) {
+    private void parse(ConsumerRecord<String, Order> record) {
         System.out.println("_______________________________________");
         System.out.println("Processing new order, checking for fraud");
         System.out.println(record.key());

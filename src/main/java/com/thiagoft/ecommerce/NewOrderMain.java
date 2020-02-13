@@ -1,19 +1,24 @@
 package com.thiagoft.ecommerce;
 
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class NewOrderMain {
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
-        var producer = new KafkaDispatcher();
+    public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
+        try (var orderDispatcher = new KafkaDispatcher<Order>()) {
+            try (var emailDispatcher = new KafkaDispatcher<Email>()) {
+                var userId = UUID.randomUUID().toString();
+                var orderId = UUID.randomUUID().toString();
+                var amount = new BigDecimal(Math.random() * 5000 + 1);
+                var order = new Order(userId, orderId, amount);
 
-        var key = UUID.randomUUID().toString();
+                orderDispatcher.send("ECOMMERCE_NEW_ORDER", userId, order);
 
-        var value = "123, 123, 76.30";
-        producer.send("ECOMMERCE_NEW_ORDER", key, value);
-
-        var email = "Thanks you for your order! We are processing!";
-        producer.send("ECOMMERCE_SEND_EMAIL", key, email);
-
+                var email = new Email("teste","Thanks you for your order! We are processing!");
+                emailDispatcher.send("ECOMMERCE_SEND_EMAIL", userId, email);
+            }
+        }
     }
 }
